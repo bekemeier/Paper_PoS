@@ -1,5 +1,5 @@
 The paper "Cerebral Encoding of Parts of Speech is Distributed and Context-Dependent" employs the publicly available MOUS dataset (Schoffelen et al., 2019) (https://doi.org/10.34973/37n0-yc51) and the analysis pipeline implemented by Huizeling et al. (2021) (https://doi.org/10.1162/nol_a_00054). In contrast to the latter study, we include the factor Part-of-Speech (POS) into our analyses. 
-The preprocessing, LCMV beamforming, and multiset canonical correlation analysis (MCCA) follow the analysis pipeline published by Arana et al. (2020; https://doi.org/10.34973/tf8r-rq72). Specifically, we follow their pipeline up to the MCCA stage (implemented in mous_supramodal_JoN_pipeline.m), after which we perform encoding-model analyses. The subsequent analysis steps (Steps 2–7 below) are implemented in our own scripts and conceptually follow the encoding-model framework described by Huizeling et al. (2021).
+The preprocessing, LCMV beamforming, and multiset canonical correlation analysis (MCCA) follow the analysis pipeline published by Arana et al. (2020; https://doi.org/10.34973/tf8r-rq72). Specifically, we follow their pipeline up to the MCCA stage (implemented in mous_supramodal_JoN_pipeline.m), after which we perform encoding-model analyses. The subsequent analysis steps (Steps 2–10 below) are implemented in our own scripts and conceptually follow the encoding-model framework described by Huizeling et al. (2021).
 The analysis pipeline is as follows:
 1.	"mous_supramodal_JoN_pipeline.m" (original pipeline by Arana et al. (2020): (https://doi.org/10.34973/tf8r-rq72)): 
 		(i) retrieve which subject belongs to which scenario, load subject data for the respective modality; 
@@ -31,3 +31,16 @@ The analysis pipeline is as follows:
 7.	"Plot_MOUS_loop.m":
 		This script visualizes t-statistics on cortical surfaces separately for each hemisphere and for lateral and medial views.
 		Maps are thresholded using the minimum t-value that survives temporal permutation testing and spatial FDR correction (t_thresh). Significant values are projected onto cortical surface maps for each hemisphere using a colormap.
+
+8. 	"post_hocs_MOUS.m"
+		The script performs time-resolved non-parametric paired permutation tests on regression coefficients extracted from significant parcels. 
+		For each timepoint, a paired t-statistic is computed across subjects comparing two conditions (e.g., verb vs adjective, verb vs noun, adjective vs noun). 
+		Multiple comparisons across time are accounted for by using a max-statistic procedure based on 5000 permutations.
+ 		Significant timepoints are identified at α = 0.0167 (Bonferroni-corrected for three comparisons).
+9. 	"FDR_correction_posthocs.m"
+		This script aggregates time-resolved post-hoc permutation p-values across all previously identified significant parcels and performs spatial multiple-comparisons correction. 
+		For each parcel, the minimum uncorrected p-value across time is extracted for each contrast (verb vs noun, adjective vs noun, verb vs adjective), yielding one summary statistic per parcel. 
+		These parcel-level p-values are then corrected for multiple comparisons across space using the Benjamini–Hochberg false discovery rate (FDR) procedure. 
+		Parcels surviving FDR correction are identified as showing reliable post-hoc effects, and their corresponding significant timepoints (uncorrected p < 0.0167) are retained for interpretation and visualization.
+10. 	"Plot_PostHoc_curves.m"
+		This script reconstructs parcel-wise post-hoc PoS effects and visualizes their temporal evolution as waveforms, allowing inspection of when and how specific PoS contrasts emerge over time in individual cortical regions.
